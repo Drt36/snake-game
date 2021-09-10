@@ -1,62 +1,154 @@
-function start(){
-    const speed = 10;
-    const direction = [-1, 1];
-    const mainFrame=createMainFrame();
-    const snake = 
-    {
-      x: 0,
-      y: 0,
-      width:40,
-      height: 40,
-      color: 'green',
-      mainFrame: mainFrame,
-      dx: direction[Math.floor(Math.random() * direction.length)],
-      dy: direction[Math.floor(Math.random() * direction.length)],
-      node: null,
+/*Variables */
+const speed = 10;
+let direction = { x: 0, y: 0 };
+let mainFrame = createMainFrame();
+let lastPaintTime = 0;
+let snakeArray = [
+  { x: Math.floor(Math.random() * 40), y: Math.floor(Math.random() * 40) },
+];
+
+/*Food*/
+const food = {
+  x: Math.floor(Math.random() * 40),
+  y: Math.floor(Math.random() * 40),
+};
+
+/*Adding EventListener*/
+document.addEventListener("keydown", moveSnake);
+
+/*calling function */
+setInterval(function () {
+  game();
+}, 100);
+
+/*Main Frame */
+function createMainFrame() {
+  const mainFrame = document.getElementById("main-frame");
+  mainFrame.style.width = "800px";
+  mainFrame.style.height = "800px";
+  mainFrame.style.marginLeft = "27vw";
+  mainFrame.style.background = "lightgray";
+  mainFrame.style.display = "grid";
+  mainFrame.style.border = "2px solid black";
+  mainFrame.style.gridTemplateRows = "repeat(40, 1fr)";
+  mainFrame.style.gridTemplateColumns = "repeat(40, 1fr)";
+  return mainFrame;
+}
+function game() {
+  //updateSnake
+  for (let i = snakeArray.length - 2; i >= 0; i--) {
+    snakeArray[i + 1] = { ...snakeArray[i] };
+  }
+
+  snakeArray[0].x += direction.x;
+  snakeArray[0].y += direction.y;
+
+  // Display the snake
+  mainFrame.innerHTML = "";
+  snakeArray.forEach((e, index) => {
+    snakebody = document.createElement("div");
+    snakebody.style.borderRadius = "5px";
+    snakebody.style.gridRowStart = e.y;
+    snakebody.style.gridColumnStart = e.x;
+    if (index === 0) {
+      snakebody.classList.add("head");
+      snakebody.style.background = "red";
+    } else {
+      snakebody.classList.add("snake-body");
+      snakebody.style.background = "black";
     }
+    mainFrame.appendChild(snakebody);
+  });
 
-    const node = createSnake(snake);
-    
+  /*Create Food*/
 
-   
+  const foodbody = document.createElement("div");
+  foodbody.style.gridRowStart = food.y;
+  foodbody.style.gridColumnStart = food.x;
+  foodbody.style.borderRadius = "2px";
+  foodbody.classList.add("food");
+  foodbody.style.background = "green";
 
+  mainFrame.appendChild(foodbody);
+
+  // check self collision
+  for (let i = 1; i < snakeArray.length; i++) {
+    if (
+      snakeArray[i].x === snakeArray[0].x &&
+      snakeArray[i].y === snakeArray[0].y
+    ) {
+      //logic
+      console.log("border collision");
+      direction = { x: 0, y: 0 };
+      gameOver();
+
+      //snakeArray = [{ x:Math.floor(Math.random() * 40), y: Math.floor(Math.random() * 40)}];
+    }
+  }
+
+  // check wall collision
+  if (
+    snakeArray[0].x >= 40 ||
+    snakeArray[0].x <= 0 ||
+    snakeArray[0].y >= 40 ||
+    snakeArray[0].y <= 0
+  ) {
+    //logic
+    direction = { x: 0, y: 0 };
+
+    gameOver();
+
+    //snakeArray = [{ x:Math.floor(Math.random() * 40), y:Math.floor(Math.random() * 40) }];
+  }
+
+  //Eat food
+  if (snakeArray[0].y === food.y && snakeArray[0].x === food.x) {
+    snakeArray.unshift({
+      x: snakeArray[0].x + direction.x,
+      y: snakeArray[0].y + direction.y,
+    });
+
+    //change food location
+    const x = Math.floor(Math.random() * 40);
+    const y = Math.floor(Math.random() * 40);
+    food.x = x;
+    food.y = y;
+  }
 }
 
-start();
-
-
-
-function createMainFrame() {
-    const mainFrame=document.getElementById('main-frame');
-    mainFrame.style.width ='1200px';
-    mainFrame.style.height = '600px';
-    mainFrame.style.background = 'lightgray';
-    mainFrame.style.position = 'relative';
-    mainFrame.style.border='2px solid black';
-  
-    return mainFrame;
+/*Key Pressed */
+function moveSnake(e) {
+  const LEFT_KEY = 37;
+  const RIGHT_KEY = 39;
+  const UP_KEY = 38;
+  const DOWN_KEY = 40;
+  e = e || window.event;
+  direction = { x: 0, y: 1 };
+  if (e.keyCode == UP_KEY) {
+    // up arrow
+    direction.x = 0;
+    direction.y = -1;
+  } else if (e.keyCode == DOWN_KEY) {
+    // down arrow
+    direction.x = 0;
+    direction.y = 1;
+  } else if (e.keyCode == LEFT_KEY) {
+    // left arrow
+    direction.x = -1;
+    direction.y = 0;
+  } else if (e.keyCode == RIGHT_KEY) {
+    // right arrow
+    direction.x = 1;
+    direction.y = 0;
   }
-  
+}
 
-function createSnake(props){
-  const x = props.x;
-  const y =props.y;
-  const width = props.width;
-  const height = props.height;
-  const color = props.color;
-  const mainFrame =props.mainFrame;
-
-  const snake = document.createElement('div');
-
-    snake.style.width = width + 'px';
-    snake.style.height = height + 'px';
-    snake.style.position = 'absolute';
-    snake.style.left = x + 'px';
-    snake.style.top = y + 'px';
-    snake.style.background = color;
-    snake.style.borderRadius = '50%';
-
-  mainFrame.appendChild(snake);
-
-  return snake;
+function gameOver() {
+  const Text = document.createElement("h1");
+  Text.style.marginLeft = "350px";
+  Text.style.marginTop = "300px";
+  Text.style.color = "red";
+  Text.innerHTML = "Game Over! Reload Browser To play Again.";
+  mainFrame.innerHTML = " ";
+  mainFrame.appendChild(Text);
 }
