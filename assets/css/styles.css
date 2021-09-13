@@ -1,0 +1,14 @@
+#tryagain-btn {
+    padding: 1rem;
+    color: white;
+    background-color: green;
+    border-radius: 5px;
+    font-size: large;
+    border: none;
+    left:10vw;
+}
+
+#tryagain-btn:hover {
+    background-color: lawngreen;
+    color: black;
+}

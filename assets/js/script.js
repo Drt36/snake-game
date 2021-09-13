@@ -17,7 +17,7 @@ const food = {
 document.addEventListener("keydown", moveSnake);
 
 /*calling function */
-setInterval(function () {
+let interval=setInterval(function () {
   game();
 }, 100);
 
@@ -83,6 +83,8 @@ function game() {
       gameOver();
 
       //snakeArray = [{ x:Math.floor(Math.random() * 40), y: Math.floor(Math.random() * 40)}];
+       
+     
     }
   }
 
@@ -122,8 +124,7 @@ function moveSnake(e) {
   const RIGHT_KEY = 39;
   const UP_KEY = 38;
   const DOWN_KEY = 40;
-  e = e || window.event;
-  direction = { x: 0, y: 1 };
+
   if (e.keyCode == UP_KEY) {
     // up arrow
     direction.x = 0;
@@ -144,11 +145,23 @@ function moveSnake(e) {
 }
 
 function gameOver() {
-  const Text = document.createElement("h1");
-  Text.style.marginLeft = "350px";
-  Text.style.marginTop = "300px";
-  Text.style.color = "red";
-  Text.innerHTML = "Game Over! Reload Browser To play Again.";
+  window.clearInterval(interval);
+  let gameOverBody = document.createElement("div");
+  gameOverBody.style.marginLeft = "350px";
+  gameOverBody.style.marginTop = "300px";
+  gameOverBody.style.color = "red";
+  gameOverBody.style.fontSize = "2rem";
+  gameOverBody.style.textAlign='center';
+  gameOverBody.style.transition = "0.5s linear";
+  gameOverBody.innerHTML =
+  "<h1>Game Over!!!</h1> <button id='tryagain-btn'>Try Again</button>";
+
   mainFrame.innerHTML = " ";
-  mainFrame.appendChild(Text);
+ 
+  mainFrame.appendChild(gameOverBody);
+  let tryAgainBtn = document.getElementById("tryagain-btn");
+
+  tryAgainBtn.addEventListener("click", () => {
+    location.reload();
+  });
 }
